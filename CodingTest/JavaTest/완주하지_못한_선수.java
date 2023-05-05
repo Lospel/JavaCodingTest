@@ -1,5 +1,4 @@
-import java.security.Key;
-import java.util.HashMap;
+import java.util.*;
 
 class Solution {
     public String solution(String[] participant, String[] completion) {
