@@ -2,50 +2,36 @@ import java.util.*;
  
 class Solution {
     public int[] solution(String[] genres, int[] plays) {
-        Map<String, Integer> map = new HashMap<>();
-        for(int i = 0; i < genres.length; i++) {
-            map.put(genres[i], map.getOrDefault(genres[i], 0) + plays[i]);
-        }
-        
-        //key값만 가져와서 genre에 넣어준다
-        ArrayList<String> genre = new ArrayList<>();
-        for(String key : map.keySet()) {
-            genre.add(key);
-        }
-        Collections.sort(genre, (o1, o2) -> map.get(o2) - map.get(o1)); //key값에 해당하는 value를 내림차순으로 정렬한다.
-        
-        ArrayList<Integer> list = new ArrayList<>();
-        for(int i = 0; i < genre.size(); i++) {
-            String g = genre.get(i);
-            
-            //해당 장르의 음악 중에서 play횟수가 가장 큰 인덱스를 찾는다
-            int max = 0;
-            int firstIdx = -1;
-            for(int j = 0; j < genres.length; j++) {
-                if(g.equals(genres[j]) && max < plays[j]) {
-                    max = plays[j];
-                    firstIdx = j;
-                }
+        ArrayList<Integer> answer = new ArrayList<>();
+ 
+        HashMap<String, Integer> num = new HashMap<>(); // 장르별 총 개수
+        HashMap<String, HashMap<Integer, Integer>> music = new HashMap<>(); // 장르에 속하는 노래 및 재생횟수
+        for(int i = 0; i < plays.length; i++) {
+            if(!num.containsKey(genres[i])) {
+                HashMap<Integer, Integer> map = new HashMap<>();
+                map.put(i, plays[i]);
+                music.put(genres[i], map);
+                num.put(genres[i], plays[i]);
+            } else {
+                music.get(genres[i]).put(i, plays[i]);
+                num.put(genres[i], num.get(genres[i]) + plays[i]);
             }
-            
-            //해당 장르의 음악 중에서 play횟수가 두번째로 큰 인덱스를 찾는다.
-            max = 0;
-            int secondIdx = -1;
-            for(int j = 0; j < genres.length; j++) {
-                if(g.equals(genres[j]) && max < plays[j] && j != firstIdx) { 
-                    max = plays[j];
-                    secondIdx = j;
-                }
-            }
-            
-            list.add(firstIdx);
-            if(secondIdx >= 0) list.add(secondIdx); //secondIdx는 존재 할수도, 안할수도 있다.
         }
-        
-        int[] result = new int[list.size()];
-        for(int i = 0; i < list.size(); i++) {
-            result[i] = list.get(i);
+ 
+        List<String> keySet = new ArrayList(num.keySet());
+        Collections.sort(keySet, (s1, s2) -> num.get(s2) - (num.get(s1)));
+ 
+        for(String key : keySet) {
+            HashMap<Integer, Integer> map = music.get(key);
+            List<Integer> genre_key = new ArrayList(map.keySet());
+ 
+            Collections.sort(genre_key, (s1, s2) -> map.get(s2) - (map.get(s1)));
+ 
+            answer.add(genre_key.get(0));
+            if(genre_key.size() > 1)
+                answer.add(genre_key.get(1));
         }
-        return result;
+ 
+        return answer.stream().mapToInt(i -> i).toArray();
     }
 }
